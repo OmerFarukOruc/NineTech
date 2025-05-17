@@ -15,26 +15,26 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://placehold.co'; // Replace with your actual domain in .env.local or directly
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ninetech.com.tr'; // Replace with your actual domain in .env.local or directly
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Ninetech Portfolio',
-    template: '%s | Ninetech Portfolio',
+    default: 'Ninetech Solutions',
+    template: '%s | Ninetech Solutions',
   },
   description: 'Portfolio of a tech expert specializing in embedded systems, IoT, and web development.',
   openGraph: {
-    title: 'Ninetech Portfolio',
+    title: 'Ninetech Solutions',
     description: 'Expert in embedded systems, IoT, and web development.',
     url: siteUrl,
-    siteName: 'Ninetech Portfolio',
+    siteName: 'Ninetech Solutions',
     images: [
       {
-        url: '/og-image.png', // Replace with your actual OG image path
+        url: '/og-image.png', // Path relative to the public folder or an absolute URL
         width: 1200,
         height: 630,
-        alt: 'Ninetech Portfolio - Tech Solutions',
+        alt: 'Ninetech - Tech Solutions',
       },
     ],
     locale: 'en_US',
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ninetech Portfolio',
+    title: 'Ninetech Solutions',
     description: 'Expert in embedded systems, IoT, and web development.',
-    // images: ['/twitter-image.png'], // Replace with your actual Twitter image path
+    images: [`${siteUrl}/og-image.png`], // Absolute URL for Twitter images
     // creator: '@yourtwitterhandle', // Replace with your Twitter handle
   },
   robots: {
@@ -58,10 +58,16 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // icons: { // You can add various icon sizes here
-  //   icon: '/favicon.ico',
-  //   apple: '/apple-touch-icon.png',
-  // },
+  icons: {
+    icon: '/favicon.ico', // Place favicon.ico in src/app/
+    apple: '/apple-touch-icon.png', // Place apple-touch-icon.png in src/app/
+    // You can add other sizes or types here:
+    // shortcut: '/shortcut-icon.png',
+    // other: [
+    //   { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/favicon-32x32.png' },
+    //   { rel: 'icon', type: 'image/png', sizes: '16x16', url: '/favicon-16x16.png' },
+    // ],
+  },
 };
 
 export default function RootLayout({

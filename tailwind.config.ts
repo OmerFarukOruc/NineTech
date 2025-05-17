@@ -6,6 +6,7 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/content/**/*.{md,mdx}", // Added to scan content files for Tailwind classes if any
   ],
   theme: {
   	extend: {
@@ -87,8 +88,42 @@ export default {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+      typography: ({ theme }: { theme: (path: string) => string }) => ({ // Added typography styles
+        DEFAULT: {
+          css: {
+            color: theme('colors.foreground'),
+            a: {
+              color: theme('colors.primary.DEFAULT'),
+              '&:hover': {
+                color: theme('colors.primary.DEFAULT / 0.9'),
+              },
+            },
+            'h1, h2, h3, h4, h5, h6': {
+              color: theme('colors.primary.DEFAULT'),
+            },
+            // Add more custom prose styles if needed
+          },
+        },
+        invert: { // For dark mode
+          css: {
+            color: theme('colors.foreground'), // In dark mode, foreground is light
+            a: {
+              color: theme('colors.primary.DEFAULT'), // In dark mode, primary is often lighter
+              '&:hover': {
+                color: theme('colors.primary.DEFAULT / 0.9'),
+              },
+            },
+            'h1, h2, h3, h4, h5, h6': {
+              color: theme('colors.primary.DEFAULT'),
+            },
+          },
+        },
+      }),
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography") // Added typography plugin
+  ],
 } satisfies Config;

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
     };
   }
 
-  const pageTitle = `${caseStudy.title} - Case Study | Ninetech Portfolio`; // Updated for consistency
+  const pageTitle = `${caseStudy.title} - Case Study | Ninetech Solutions`; // Updated for consistency
   const pageDescription = caseStudy.description; 
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; // Ensure metadataBase is defined in layout
