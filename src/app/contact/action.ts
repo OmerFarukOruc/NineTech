@@ -34,14 +34,15 @@ export async function submitContactForm(
   const emailJsServiceId = process.env.EMAILJS_SERVICE_ID;
   const emailJsTemplateId = process.env.EMAILJS_TEMPLATE_ID;
   const emailJsPublicKey = process.env.EMAILJS_PUBLIC_KEY; // User ID is often referred to as Public Key
+  const emailJsPrivateKey = process.env.EMAILJS_PRIVATE_KEY; // Access Token for backend calls
 
-  if (!emailJsServiceId || !emailJsTemplateId || !emailJsPublicKey) {
+  if (!emailJsServiceId || !emailJsTemplateId || !emailJsPublicKey || !emailJsPrivateKey) {
     console.error(
-      "Missing required EmailJS environment variables (SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY)."
+      "Missing required EmailJS environment variables (SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY, PRIVATE_KEY)."
     );
     return {
       message:
-        "Server configuration error: Could not send email. Please contact support.",
+        "Server configuration error: Could not send email. Please contact support. Required EmailJS environment variables are missing.",
       success: false,
     };
   }
@@ -50,14 +51,13 @@ export async function submitContactForm(
     service_id: emailJsServiceId,
     template_id: emailJsTemplateId,
     user_id: emailJsPublicKey,
+    accessToken: emailJsPrivateKey, // Add the private key here
     template_params: {
       name: parsed.data.name,
       email: parsed.data.email,
       message: parsed.data.message,
       // Add any other params your EmailJS template expects
     },
-    // If you have an Access Token (Private Key) for backend use, add it here:
-    // accessToken: process.env.EMAILJS_ACCESS_TOKEN 
   };
 
   try {
@@ -94,6 +94,7 @@ export async function submitContactForm(
       "An error occurred while sending your message. Please try again later.";
     if (error instanceof Error) {
       // More specific error messages can be logged or handled here if needed
+       errorMessage = `Failed to send email. Error: ${error.message}`;
     }
     return {
       message: errorMessage,
@@ -102,3 +103,4 @@ export async function submitContactForm(
     };
   }
 }
+
