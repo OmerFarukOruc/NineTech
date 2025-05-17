@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -16,6 +17,11 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Add other image hostnames if you use them for OG images, e.g.
+      // {
+      //   protocol: 'https',
+      //   hostname: 'your-og-image-provider.com',
+      // },
     ],
   },
 };
