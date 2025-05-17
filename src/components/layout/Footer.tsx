@@ -24,7 +24,7 @@ export function Footer() {
           <a href="mailto:info@ninetech.com.tr" className="hover:text-primary hover:underline">info@ninetech.com.tr</a>
         </p>
         <p className="text-sm">
-          &copy; {new Date().getFullYear()} Ninetech Portfolio. All rights reserved.
+          &copy; {new Date().getFullYear()} Ninetech.com.tr. All rights reserved.
         </p>
         <p className="text-xs mt-1">
           Built with Next.js and Tailwind CSS.
