@@ -2,8 +2,10 @@
 "use server";
 
 import { z } from "zod";
-import nodemailer from "nodemailer";
 import { contactFormSchema } from "@/lib/schemas";
+import type { ReactNode } from "react";
+import { startTransition } from "react";
+
 
 export type ContactFormState = {
   message: string;
@@ -28,23 +30,14 @@ export async function submitContactForm(
     };
   }
 
-  // Check for required environment variables
-  const requiredEnvVars = [
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USER",
-    "SMTP_PASS",
-    "EMAIL_TO",
-    "EMAIL_FROM",
-  ];
-  const missingEnvVars = requiredEnvVars.filter(
-    (varName) => !process.env[varName]
-  );
+  // Check for required EmailJS environment variables
+  const emailJsServiceId = process.env.EMAILJS_SERVICE_ID;
+  const emailJsTemplateId = process.env.EMAILJS_TEMPLATE_ID;
+  const emailJsPublicKey = process.env.EMAILJS_PUBLIC_KEY; // User ID is often referred to as Public Key
 
-  if (missingEnvVars.length > 0) {
+  if (!emailJsServiceId || !emailJsTemplateId || !emailJsPublicKey) {
     console.error(
-      "Missing required SMTP environment variables:",
-      missingEnvVars.join(", ")
+      "Missing required EmailJS environment variables (SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY)."
     );
     return {
       message:
@@ -53,63 +46,54 @@ export async function submitContactForm(
     };
   }
 
-  const smtpHost = process.env.SMTP_HOST!;
-  const smtpPort = process.env.SMTP_PORT!;
-  const smtpUser = process.env.SMTP_USER!;
-  const smtpPass = process.env.SMTP_PASS!;
-  const emailTo = process.env.EMAIL_TO!;
-  const emailFrom = process.env.EMAIL_FROM!;
+  const emailJsParams = {
+    service_id: emailJsServiceId,
+    template_id: emailJsTemplateId,
+    user_id: emailJsPublicKey,
+    template_params: {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      message: parsed.data.message,
+      // Add any other params your EmailJS template expects
+    },
+    // If you have an Access Token (Private Key) for backend use, add it here:
+    // accessToken: process.env.EMAILJS_ACCESS_TOKEN 
+  };
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: parseInt(smtpPort, 10),
-      secure: parseInt(smtpPort, 10) === 465, // true for 465 (SSL), false for 587 (TLS/STARTTLS) and others
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
+    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      // Consider adding tls options if needed for your cPanel server, e.g., for self-signed certs (use with caution)
-      // tls: {
-      //   rejectUnauthorized: process.env.NODE_ENV === 'production' // false in dev if needed
-      // }
+      body: JSON.stringify(emailJsParams),
     });
 
-    const mailOptions = {
-      from: `"${parsed.data.name}" <${emailFrom}>`, // Display name is user's, actual sender is your server email
-      replyTo: parsed.data.email, // So you can reply directly to the user
-      to: emailTo, // Your email address to receive quote requests
-      subject: `New Quote Request from ${parsed.data.name} via Ninetech Portfolio`,
-      text: `You have received a new quote request:
-Name: ${parsed.data.name}
-Email: ${parsed.data.email}
-Message:
-${parsed.data.message}`,
-      html: `<h3>New Quote Request</h3>
-             <p><strong>Name:</strong> ${parsed.data.name}</p>
-             <p><strong>Email:</strong> <a href="mailto:${parsed.data.email}">${parsed.data.email}</a></p>
-             <p><strong>Message:</strong></p>
-             <p>${parsed.data.message.replace(/\n/g, "<br>")}</p>`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    console.log(
-      `Quote request email successfully sent from ${parsed.data.email} (via ${emailFrom}) to ${emailTo}. Subject: ${mailOptions.subject}`
-    );
-
-    return {
-      message:
-        "Thank you for your quote request! I will get back to you soon.",
-      success: true,
-    };
+    if (response.ok) {
+      const responseText = await response.text(); // EmailJS often returns "OK" as text
+      console.log(
+        `Quote request email successfully sent via EmailJS from ${parsed.data.email}. EmailJS Response: ${responseText}`
+      );
+      return {
+        message:
+          "Thank you for your quote request! I will get back to you soon.",
+        success: true,
+      };
+    } else {
+      const errorText = await response.text();
+      console.error("Failed to send email via EmailJS:", response.status, errorText);
+      return {
+        message: `An error occurred while sending your message (EmailJS Error: ${response.status} - ${errorText}). Please try again later.`,
+        success: false,
+        fields: parsed.data, // Preserve form data on error
+      };
+    }
   } catch (error) {
-    console.error("Failed to send email:", error);
+    console.error("Failed to send email via EmailJS (Network/Fetch Error):", error);
     let errorMessage =
       "An error occurred while sending your message. Please try again later.";
     if (error instanceof Error) {
-        // More specific error messages can be logged or handled here if needed
-        // For example, check for authentication errors, connection issues, etc.
-        // For security, don't expose detailed SMTP errors to the client.
+      // More specific error messages can be logged or handled here if needed
     }
     return {
       message: errorMessage,
