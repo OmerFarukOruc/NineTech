@@ -1,4 +1,5 @@
-import { Github, Linkedin, Twitter } from 'lucide-react';
+
+import { Github, Linkedin, Twitter, Mail } from 'lucide-react'; // Added Mail icon
 import Link from 'next/link';
 
 export function Footer() {
@@ -15,7 +16,13 @@ export function Footer() {
           <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-secondary-foreground hover:text-primary transition-colors">
             <Twitter size={24} />
           </Link>
+          <a href="mailto:info@ninetech.com.tr" aria-label="Email us at info@ninetech.com.tr" className="text-secondary-foreground hover:text-primary transition-colors">
+            <Mail size={24} />
+          </a>
         </div>
+        <p className="text-sm mb-2">
+          <a href="mailto:info@ninetech.com.tr" className="hover:text-primary hover:underline">info@ninetech.com.tr</a>
+        </p>
         <p className="text-sm">
           &copy; {new Date().getFullYear()} Ninetech Portfolio. All rights reserved.
         </p>
